@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 # Load the dataset
 @st.cache
 def load_data():
-    data = pd.read_csv("property_dataset.csv")
+    data = pd.read_csv("zameen-property-data.csv")
     return data
 
 # Define the training and evaluation process
@@ -23,11 +23,16 @@ def train_and_evaluate_model(data):
     model.fit(X_train, y_train)
     
     # Evaluate the model
-    y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, y_pred)
+    try:
+        y_pred = model.predict(X_test)
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
+    except ValueError as ve:
+        st.write("Oops! Something went wrong!")
+        st.write(ve)
+        mae, rmse, r2 = np.nan, np.nan, np.nan
     
     return model, mae, rmse, r2
 
@@ -55,6 +60,6 @@ def main():
         "Importance": data.drop(["price"], axis=1).columns
     }).sort_values("Feature", ascending=False)
     st.bar_chart(feature_importance.head(10))
-    
+
 if __name__ == "__main__":
     main()
