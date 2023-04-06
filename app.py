@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 # Load the dataset
 @st.cache
 def load_data():
-    data = pd.read_csv("zameen-property-data.csv")
+    data = pd.read_csv("property_dataset.csv")
     return data
 
 # Define the training and evaluation process
