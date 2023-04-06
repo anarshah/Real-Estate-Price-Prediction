@@ -1,66 +1,70 @@
-import pandas as pd
-import numpy as np
 import streamlit as st
+import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# Load the dataset
-@st.cache_data
 def load_data():
     data = pd.read_csv("zameen-property-data.csv")
-    return data.dropna()
+    data.drop(["property_id", "location_id", "page_url", "latitude", "longitude", "date_added", "agency", "agent"], axis=1, inplace=True)
+    return data
 
-# Define the training and evaluation process
-def train_and_evaluate_model(data):
-    # Prepare the data
-    data = data.drop(["page_url"], axis=1)
-    X = data.drop(["price"], axis=1).astype(float)
-    y = data["price"].astype(float)
+def preprocess_data(data):
+    # encode categorical features
+    encoder = LabelEncoder()
+    data["property_type"] = encoder.fit_transform(data["property_type"])
+    data["location"] = encoder.fit_transform(data["location"])
+    data["city"] = encoder.fit_transform(data["city"])
+    data["province_name"] = encoder.fit_transform(data["province_name"])
+    data["purpose"] = encoder.fit_transform(data["purpose"])
+    
+    # split data into X and y
+    X = data.drop(["price"], axis=1)
+    y = data["price"]
+    
+    # split data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Train the model
+    return X_train, X_test, y_train, y_test
+
+def train_model(X_train, y_train):
+    # train a random forest regressor
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-    
-    # Evaluate the model
-    try:
-        y_pred = model.predict(X_test)
-        mae = mean_absolute_error(y_test, y_pred)
-        mse = mean_squared_error(y_test, y_pred)
-        rmse = np.sqrt(mse)
-        r2 = r2_score(y_test, y_pred)
-    except ValueError as ve:
-        st.write("Oops! Something went wrong!")
-        st.write(ve)
-        mae, rmse, r2 = np.nan, np.nan, np.nan
-    
-    return model, mae, rmse, r2
+    return model
 
-# Define the main function
+def evaluate_model(model, X_test, y_test):
+    # make predictions on test data
+    y_pred = model.predict(X_test)
+    
+    # calculate evaluation metrics
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    r2 = r2_score(y_test, y_pred)
+    
+    return mae, rmse, r2
+
 def main():
-    # Load the data
+    st.set_page_config(page_title="Real Estate Price Prediction", page_icon=":house:", layout="wide")
+    st.title("Real Estate Price Prediction")
+    
+    # load data
     data = load_data()
     
-    # Show the dataset on Streamlit
-    st.write("## Property Dataset")
-    st.write(data)
+    # preprocess data
+    X_train, X_test, y_train, y_test = preprocess_data(data)
     
-    # Train and evaluate the model
-    st.write("## Model Training and Evaluation")
-    model, mae, rmse, r2 = train_and_evaluate_model(data)
-    st.write("### Model Performance")
-    st.write(f"Mean Absolute Error: {mae:.2f}")
-    st.write(f"Root Mean Squared Error: {rmse:.2f}")
-    st.write(f"R-squared: {r2:.2f}")
+    # train model
+    model = train_model(X_train, y_train)
     
-    # Show the feature importance
-    st.write("### Feature Importance")
-    feature_importance = pd.DataFrame({
-        "Feature": model.feature_importances_,
-        "Importance": data.drop(["price"], axis=1).columns
-    }).sort_values("Feature", ascending=False)
-    st.bar_chart(feature_importance.head(10))
+    # evaluate model
+    mae, rmse, r2 = evaluate_model(model, X_test, y_test)
+    
+    # display results
+    st.write("Mean Absolute Error:", mae)
+    st.write("Root Mean Squared Error:", rmse)
+    st.write("R2 Score:", r2)
 
 if __name__ == "__main__":
     main()
