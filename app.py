@@ -21,7 +21,7 @@ def train_and_evaluate_model(data):
     # Train the model
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-
+    
     # Evaluate the model
     try:
         y_pred = model.predict(X_test)
@@ -33,9 +33,8 @@ def train_and_evaluate_model(data):
         st.write("Oops! Something went wrong!")
         st.write(ve)
         mae, rmse, r2 = np.nan, np.nan, np.nan
-
+    
     return model, mae, rmse, r2
-
 
 # Define the main function
 def main():
@@ -61,6 +60,6 @@ def main():
         "Importance": data.drop(["price"], axis=1).columns
     }).sort_values("Feature", ascending=False)
     st.bar_chart(feature_importance.head(10))
-    
+
 if __name__ == "__main__":
     main()
