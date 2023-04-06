@@ -9,13 +9,13 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 @st.cache_data
 def load_data():
     data = pd.read_csv("zameen-property-data.csv")
-    return data
+    return data.dropna()
 
 # Define the training and evaluation process
 def train_and_evaluate_model(data):
     # Prepare the data
-    X = data.drop(["price"], axis=1)
-    y = data["price"]
+    X = data.drop(["price"], axis=1).astype(float)
+    y = data["price"].astype(float)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     # Train the model
