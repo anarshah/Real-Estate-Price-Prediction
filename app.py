@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Load the dataset
-@st.cache
+@st.cache_data
 def load_data():
     data = pd.read_csv("zameen-property-data.csv")
     return data
