@@ -14,6 +14,7 @@ def load_data():
 # Define the training and evaluation process
 def train_and_evaluate_model(data):
     # Prepare the data
+    data = data.drop(["page_url"], axis=1)
     X = data.drop(["price"], axis=1).astype(float)
     y = data["price"].astype(float)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
