@@ -6,9 +6,11 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Load the dataset
-@st.cache_data
+@st.cache
 def load_data():
     data = pd.read_csv("zameen-property-data.csv")
+    # Remove non-numeric columns
+    data = data.select_dtypes(include=[np.number])
     return data
 
 # Define the training and evaluation process
@@ -16,8 +18,6 @@ def train_and_evaluate_model(data):
     # Prepare the data
     X = data.drop(["price"], axis=1)
     y = data["price"]
-    # One-hot encode the page_url column
-    X = pd.concat([X, pd.get_dummies(X["page_url"])], axis=1).drop(["page_url"], axis=1)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     # Train the model
@@ -59,7 +59,7 @@ def main():
     st.write("### Feature Importance")
     feature_importance = pd.DataFrame({
         "Feature": model.feature_importances_,
-        "Importance": data.drop(["price", "page_url"], axis=1).columns
+        "Importance": data.drop(["price"], axis=1).columns
     }).sort_values("Feature", ascending=False)
     st.bar_chart(feature_importance.head(10))
 
