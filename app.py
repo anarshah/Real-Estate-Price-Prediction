@@ -4,17 +4,11 @@ import joblib
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeRegressor
 
-
 # Load the trained decision tree model
 model = joblib.load('decision_tree_model.joblib')
 
 # Load the label encoder for the location feature
 le = joblib.load('label_encoder.joblib')
-
-# Load the training data
-train_data = pd.read_csv('zameen-property-data.csv')
-X_train = train_data.drop('price', axis=1)
-y_train = train_data['price']
 
 # Define a function to preprocess the input data and make predictions
 def predict_price(location, sqft, bedrooms, bathrooms):
@@ -32,14 +26,10 @@ def predict_price(location, sqft, bedrooms, bathrooms):
     # Create a pandas DataFrame from the input dictionary
     input_df = pd.DataFrame([input_dict])
 
-    # Fit the model on the training data
-    model.fit(X_train, y_train)
-
     # Make predictions on the input data
     prediction = model.predict(input_df)
 
     return prediction
-
 
 # Create the Streamlit app
 st.title('Real Estate Price Prediction')
