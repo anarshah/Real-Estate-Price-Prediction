@@ -1,65 +1,59 @@
-import pandas as pd
-import numpy as np
 import streamlit as st
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import pandas as pd
+import joblib
 
-# Load the dataset
-@st.cache
-def load_data():
-    data = pd.read_csv("zameen-property-data.csv")
-    return data
+# Load the trained model
+model = joblib.load('model.joblib')
 
-# Define the training and evaluation process
-def train_and_evaluate_model(data):
-    # Prepare the data
-    X = data.drop(["price"], axis=1)
-    y = data["price"]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    # Train the model
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    
-    # Evaluate the model
-    try:
-        y_pred = model.predict(X_test)
-        mae = mean_absolute_error(y_test, y_pred)
-        mse = mean_squared_error(y_test, y_pred)
-        rmse = np.sqrt(mse)
-        r2 = r2_score(y_test, y_pred)
-    except ValueError as ve:
-        st.write("Oops! Something went wrong!")
-        st.write(ve)
-        mae, rmse, r2 = np.nan, np.nan, np.nan
-    
-    return model, mae, rmse, r2
+# Load the data
+df = pd.read_csv('zameen-property-data.csv')
 
-# Define the main function
-def main():
-    # Load the data
-    data = load_data()
-    
-    # Show the dataset on Streamlit
-    st.write("## Property Dataset")
-    st.write(data)
-    
-    # Train and evaluate the model
-    st.write("## Model Training and Evaluation")
-    model, mae, rmse, r2 = train_and_evaluate_model(data)
-    st.write("### Model Performance")
-    st.write(f"Mean Absolute Error: {mae:.2f}")
-    st.write(f"Root Mean Squared Error: {rmse:.2f}")
-    st.write(f"R-squared: {r2:.2f}")
-    
-    # Show the feature importance
-    st.write("### Feature Importance")
-    feature_importance = pd.DataFrame({
-        "Feature": model.feature_importances_,
-        "Importance": data.drop(["price"], axis=1).columns
-    }).sort_values("Feature", ascending=False)
-    st.bar_chart(feature_importance.head(10))
+# Remove unwanted columns
+df.drop(['property_id', 'location_id', 'page_url', 'purpose', 'date_added', 'agency', 'agent'], axis=1, inplace=True)
 
-if __name__ == "__main__":
-    main()
+# Convert area column to numeric
+df['area'] = df['area'].str.replace('Marla', '').astype(float)
+
+# Convert location column to categorical
+df['location'] = pd.Categorical(df['location']).codes
+
+# Convert city column to categorical
+df['city'] = pd.Categorical(df['city']).codes
+
+# Convert province_name column to categorical
+df['province_name'] = pd.Categorical(df['province_name']).codes
+
+# Convert property_type column to categorical
+df['property_type'] = pd.Categorical(df['property_type']).codes
+
+# Define a function to make a prediction
+def predict_price(bedrooms, bathrooms, area):
+    # Create a dictionary with the user input
+    data = {'bedrooms': bedrooms, 'bathrooms': bathrooms, 'area': area}
+    
+    # Create a DataFrame from the dictionary
+    df_user_input = pd.DataFrame(data, index=[0])
+    
+    # Use the trained model to make a prediction on the user input
+    predicted_price = model.predict(df_user_input)[0]
+    
+    return predicted_price
+
+# Define the Streamlit app
+def app():
+    st.title("Property Price Predictor")
+    
+    # Get user input
+    bedrooms = st.number_input("Enter number of bedrooms", min_value=1, max_value=10, step=1)
+    bathrooms = st.number_input("Enter number of bathrooms", min_value=1, max_value=10, step=1)
+    area = st.number_input("Enter area in square meters", min_value=1.0, max_value=1000.0, step=1.0)
+    
+    # Make a prediction
+    predicted_price = predict_price(bedrooms, bathrooms, area)
+    
+    # Show the predicted price
+    st.write(f"The predicted price is {predicted_price:.2f} PKR.")
+    
+# Run the app
+if __name__ == '__main__':
+    app()
