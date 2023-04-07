@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import train_test_split
 
 
 # Load the trained decision tree model
@@ -13,15 +12,9 @@ model = joblib.load('decision_tree_model.joblib')
 le = joblib.load('label_encoder.joblib')
 
 # Load the training data
-df = pd.read_csv('zameen-property-data.csv')
-
-# Split the data into features and target variables
-X = df.drop('price', axis=1)
-y = df['price']
-
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+train_data = pd.read_csv('zameen-property-data.csv')
+X_train = train_data.drop('price', axis=1)
+y_train = train_data['price']
 
 # Define a function to preprocess the input data and make predictions
 def predict_price(location, sqft, bedrooms, bathrooms):
@@ -38,6 +31,9 @@ def predict_price(location, sqft, bedrooms, bathrooms):
 
     # Create a pandas DataFrame from the input dictionary
     input_df = pd.DataFrame([input_dict])
+
+    # Fit the model on the training data
+    model.fit(X_train, y_train)
 
     # Make predictions on the input data
     prediction = model.predict(input_df)
