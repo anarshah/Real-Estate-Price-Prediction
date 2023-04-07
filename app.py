@@ -5,7 +5,7 @@ import re
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-from sklearn.externals import joblib
+import joblib
 
 
 # Load the trained model
