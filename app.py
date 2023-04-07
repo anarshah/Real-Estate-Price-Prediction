@@ -1,59 +1,65 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import re
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
 import joblib
+
 
 # Load the trained model
 model = joblib.load('model.joblib')
 
-# Load the data
-df = pd.read_csv('zameen-property-data.csv')
-
-# Remove unwanted columns
-df.drop(['property_id', 'location_id', 'page_url', 'purpose', 'date_added', 'agency', 'agent'], axis=1, inplace=True)
-
-# Convert area column to numeric
-df['area'] = df['area'].str.replace('Marla', '').astype(float)
-
-# Convert location column to categorical
-df['location'] = pd.Categorical(df['location']).codes
-
-# Convert city column to categorical
-df['city'] = pd.Categorical(df['city']).codes
-
-# Convert province_name column to categorical
-df['province_name'] = pd.Categorical(df['province_name']).codes
-
-# Convert property_type column to categorical
-df['property_type'] = pd.Categorical(df['property_type']).codes
-
-# Define a function to make a prediction
-def predict_price(bedrooms, bathrooms, area):
-    # Create a dictionary with the user input
-    data = {'bedrooms': bedrooms, 'bathrooms': bathrooms, 'area': area}
+# Define a function to preprocess the input data
+def preprocess_input(baths, bedrooms, area, location, city, province_name):
+    # Preprocess the area feature
+    pattern = r'^([\d\.]+)'
+    area_num = float(re.findall(pattern, area)[0])
     
-    # Create a DataFrame from the dictionary
-    df_user_input = pd.DataFrame(data, index=[0])
+    # Create a DataFrame with the preprocessed input data
+    input_df = pd.DataFrame({
+        'baths': [baths],
+        'bedrooms': [bedrooms],
+        'area_num': [area_num],
+        'location': [location],
+        'city': [city],
+        'province_name': [province_name]
+    })
     
-    # Use the trained model to make a prediction on the user input
-    predicted_price = model.predict(df_user_input)[0]
+    # Encode the categorical variables
+    le = joblib.load('label_encoder.joblib')
+    input_df['location'] = le.transform(input_df['location'])
+    input_df['city'] = le.transform(input_df['city'])
+    input_df['province_name'] = le.transform(input_df['province_name'])
     
-    return predicted_price
+    # Generate polynomial features
+    poly = joblib.load('polynomial_features.joblib')
+    input_df = pd.DataFrame(poly.transform(input_df), columns=poly.get_feature_names(['baths', 'bedrooms', 'area_num']))
+    
+    return input_df
 
 # Define the Streamlit app
 def app():
-    st.title("Property Price Predictor")
+    st.title('Property Price Predictor')
     
-    # Get user input
-    bedrooms = st.number_input("Enter number of bedrooms", min_value=1, max_value=10, step=1)
-    bathrooms = st.number_input("Enter number of bathrooms", min_value=1, max_value=10, step=1)
-    area = st.number_input("Enter area in square meters", min_value=1.0, max_value=1000.0, step=1.0)
+    # Define the input fields
+    baths = st.number_input('Number of bathrooms', value=2, min_value=1, max_value=10)
+    bedrooms = st.number_input('Number of bedrooms', value=3, min_value=1, max_value=10)
+    area = st.text_input('Area (in square feet)', value='1200')
+    location = st.selectbox('Location', ['DHA Phase 1', 'Bahria Town', 'Gulberg', 'Model Town', 'Johar Town', 'Iqbal Town', 'Township'])
+    city = st.selectbox('City', ['Lahore', 'Islamabad', 'Karachi', 'Rawalpindi', 'Faisalabad', 'Multan', 'Gujranwala', 'Peshawar'])
+    province_name = st.selectbox('Province', ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Islamabad Capital Territory', 'Balochistan', 'Gilgit-Baltistan', 'Azad Jammu and Kashmir'])
     
-    # Make a prediction
-    predicted_price = predict_price(bedrooms, bathrooms, area)
+    # Preprocess the input data
+    input_df = preprocess_input(baths, bedrooms, area, location, city, province_name)
     
-    # Show the predicted price
-    st.write(f"The predicted price is {predicted_price:.2f} PKR.")
+    # Make the prediction
+    predicted_price = model.predict(input_df)[0]
     
-# Run the app
+    # Display the predicted price
+    st.write('The predicted price of the property is:', predicted_price)
+
+
 if __name__ == '__main__':
     app()
