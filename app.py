@@ -5,6 +5,7 @@ import re
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import LabelEncoder
 import joblib
 
 
@@ -27,11 +28,13 @@ def preprocess_input(baths, bedrooms, area, location, city, province_name):
         'province_name': [province_name]
     })
     
-    # Encode the categorical variables
-    le = joblib.load('label_encoder.joblib')
-    input_df['location'] = le.transform(input_df['location'])
-    input_df['city'] = le.transform(input_df['city'])
-    input_df['province_name'] = le.transform(input_df['province_name'])
+    # Initialize LabelEncoder
+    le = LabelEncoder()
+    # Fit and transform 'location' column, handle unseen labels with 'ignore'
+    # Fit and transform categorical columns
+    input_df['location'] = le.fit_transform(input_df['location'].astype(str)).astype(int)
+    input_df['city'] = le.fit_transform(input_df['city'].astype(str)).astype(int)
+    input_df['province_name'] = le.fit_transform(input_df['province_name'].astype(str)).astype(int)
     
     # Generate polynomial features
     poly = joblib.load('polynomial_features.joblib')
