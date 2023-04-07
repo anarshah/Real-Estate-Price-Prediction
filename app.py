@@ -1,24 +1,28 @@
 import streamlit as st
 import joblib
-import pandas as pd
 
-# load the trained model
-model = joblib.load('decision_tree_model.joblib')
+# Load the trained decision tree model
+decision_tree_model = joblib.load('decision_tree_model.joblib')
 
-# create the UI elements to get user input
-bedrooms = st.sidebar.slider('Number of bedrooms', 1, 10, 1)
-bathrooms = st.sidebar.slider('Number of bathrooms', 1, 10, 1)
-area = st.sidebar.slider('Area in square feet', 500, 10000, 1000)
-location = st.sidebar.selectbox('Location', ['Gulberg', 'DHA', 'Johar Town', 'Bahria Town'])
+# Load the LabelEncoder
+le = joblib.load('label_encoder.joblib')
 
-# create a dictionary of the user input
-input_dict = {'bedrooms': bedrooms, 'bathrooms': bathrooms, 'area': area, 'location': location}
+# Create a list of available locations
+locations = ['Bahria Town', 'DHA Defence', 'Gulberg', 'Johar Town', 'Wapda Town']
 
-# convert the dictionary to a dataframe
-input_df = pd.DataFrame([input_dict])
+# Get the user input
+st.title("Real Estate Price Predictor")
+location = st.selectbox("Select Location", locations)
+sqft = st.number_input("Enter Square Feet")
+bedrooms = st.number_input("Enter Number of Bedrooms")
+bathrooms = st.number_input("Enter Number of Bathrooms")
+ 
+# Transform location using the LabelEncoder
+le.transform(locations)
 
-# make predictions using the loaded model
-prediction = model.predict(input_df)
+# Make the prediction
+location_encoded = le.transform([location])[0]
+prediction = decision_tree_model.predict([[location_encoded, sqft, bedrooms, bathrooms]])
 
-# display the predicted price to the user
-st.write('The predicted price is:', prediction[0])
+# Display the prediction
+st.write("The estimated price of the property is", prediction[0])
