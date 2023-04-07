@@ -1,30 +1,24 @@
 import streamlit as st
 import joblib
-import numpy as np
+import pandas as pd
 
-# Load the saved decision tree model
-decision_tree_model = joblib.load('decision_tree_model.joblib')
+# load the trained model
+model = joblib.load('decision_tree_model.joblib')
 
-# Create a form for user input
-st.write('Please enter the following information:')
-form = st.form(key='prediction_form')
-beds = form.number_input('Number of bedrooms:', min_value=1, max_value=10, value=2)
-baths = form.number_input('Number of bathrooms:', min_value=1, max_value=10, value=2)
-area = form.number_input('Area (in square feet):', min_value=1, value=1000)
-location = form.selectbox('Location:', ['Gulberg', 'DHA', 'Bahria Town', 'Model Town'])
-submit_button = form.form_submit_button(label='Get Prediction')
+# create the UI elements to get user input
+bedrooms = st.sidebar.slider('Number of bedrooms', 1, 10, 1)
+bathrooms = st.sidebar.slider('Number of bathrooms', 1, 10, 1)
+area = st.sidebar.slider('Area in square feet', 500, 10000, 1000)
+location = st.sidebar.selectbox('Location', ['Gulberg', 'DHA', 'Johar Town', 'Bahria Town'])
 
-# Make a prediction based on user input
-if submit_button:
-    # Encode the location using the same LabelEncoder as used during training
-    le = joblib.load('label_encoder.joblib')
-    location_encoded = le.transform([location])[0]
+# create a dictionary of the user input
+input_dict = {'bedrooms': bedrooms, 'bathrooms': bathrooms, 'area': area, 'location': location}
 
-    # Create a numpy array from user input and location encoded value
-    input_features = np.array([[beds, baths, area, location_encoded]])
+# convert the dictionary to a dataframe
+input_df = pd.DataFrame([input_dict])
 
-    # Make a prediction using the saved decision tree model
-    prediction = decision_tree_model.predict(input_features)
+# make predictions using the loaded model
+prediction = model.predict(input_df)
 
-    # Display the prediction to the user
-    st.write('The predicted price is: ${:.2f}'.format(prediction[0]))
+# display the predicted price to the user
+st.write('The predicted price is:', prediction[0])
