@@ -1,68 +1,53 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import re
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.pipeline import make_pipeline
+from sklearn.externals import joblib
 from sklearn.preprocessing import LabelEncoder
-import joblib
+from sklearn.tree import DecisionTreeRegressor
 
 
-# Load the trained model
-model = joblib.load('model.joblib')
+# Load the trained decision tree model
+model = joblib.load('decision_tree_model.joblib')
 
-# Define a function to preprocess the input data
-def preprocess_input(baths, bedrooms, area, location, city, province_name):
-    # Preprocess the area feature
-    pattern = r'^([\d\.]+)'
-    area_num = float(re.findall(pattern, area)[0])
-    
-    # Create a DataFrame with the preprocessed input data
-    input_df = pd.DataFrame({
-        'baths': [baths],
-        'bedrooms': [bedrooms],
-        'area_num': [area_num],
-        'location': [location],
-        'city': [city],
-        'province_name': [province_name]
-    })
-    
-    # Initialize LabelEncoder
-    le = LabelEncoder()
-    # Fit and transform 'location' column, handle unseen labels with 'ignore'
-    # Fit and transform categorical columns
-    input_df['location'] = le.fit_transform(input_df['location'].astype(str)).astype(int)
-    input_df['city'] = le.fit_transform(input_df['city'].astype(str)).astype(int)
-    input_df['province_name'] = le.fit_transform(input_df['province_name'].astype(str)).astype(int)
-    
-    # Generate polynomial features
-    poly = joblib.load('polynomial_features.joblib')
-    input_df = pd.DataFrame(poly.transform(input_df), columns=poly.get_feature_names(['baths', 'bedrooms', 'area_num']))
-    
-    return input_df
-
-# Define the Streamlit app
-def app():
-    st.title('Property Price Predictor')
-    
-    # Define the input fields
-    baths = st.number_input('Number of bathrooms', value=2, min_value=1, max_value=10)
-    bedrooms = st.number_input('Number of bedrooms', value=3, min_value=1, max_value=10)
-    area = st.text_input('Area (in square feet)', value='1200')
-    location = st.selectbox('Location', ['DHA Phase 1', 'Bahria Town', 'Gulberg', 'Model Town', 'Johar Town', 'Iqbal Town', 'Township'])
-    city = st.selectbox('City', ['Lahore', 'Islamabad', 'Karachi', 'Rawalpindi', 'Faisalabad', 'Multan', 'Gujranwala', 'Peshawar'])
-    province_name = st.selectbox('Province', ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Islamabad Capital Territory', 'Balochistan', 'Gilgit-Baltistan', 'Azad Jammu and Kashmir'])
-    
-    # Preprocess the input data
-    input_df = preprocess_input(baths, bedrooms, area, location, city, province_name)
-    
-    # Make the prediction
-    predicted_price = model.predict(input_df)[0]
-    
-    # Display the predicted price
-    st.write('The predicted price of the property is:', predicted_price)
+# Load the label encoder for the location feature
+le = joblib.load('label_encoder.joblib')
 
 
-if __name__ == '__main__':
-    app()
+# Define a function to preprocess the input data and make predictions
+def predict_price(location, sqft, bedrooms, bathrooms):
+    # Encode the location feature
+    location_encoded = le.transform([location])[0]
+
+    # Create a dictionary with the input data
+    input_dict = {
+        'location': location_encoded,
+        'total_sqft': sqft,
+        'bedrooms': bedrooms,
+        'bathrooms': bathrooms
+    }
+
+    # Create a pandas DataFrame from the input dictionary
+    input_df = pd.DataFrame([input_dict])
+
+    # Fit the model on the input data
+    model.fit(X_train, y_train)
+
+    # Make predictions on the input data
+    prediction = model.predict(input_df)
+
+    return prediction
+
+
+# Create the Streamlit app
+st.title('Real Estate Price Prediction')
+
+# Add input fields for the user to enter the property details
+location = st.selectbox('Location', ['Gulberg', 'DHA', 'Bahria Town', 'Safari Villas'])
+sqft = st.number_input('Total sqft')
+bedrooms = st.number_input('Bedrooms')
+bathrooms = st.number_input('Bathrooms')
+
+# Add a button to make predictions on the input data
+if st.button('Predict'):
+    # Call the predict_price function with the input data
+    prediction = predict_price(location, sqft, bedrooms, bathrooms)
+    st.success(f'The predicted price is {prediction:.2f} PKR.')
