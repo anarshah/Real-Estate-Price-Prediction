@@ -24,7 +24,7 @@ imputer = SimpleImputer()
 df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 
 # define the columns used to train the model
-columns = ['bedrooms', 'bathrooms', 'area', 'location', 'purpose', 'property_type']
+columns = ['bedrooms', 'baths', 'area', 'location', 'purpose', 'property_type']
 
 # get unique values for the "city" column based on the selected province
 def get_city_options(province_name):
@@ -37,7 +37,7 @@ def get_location_options(city):
     return location_options
 
 # define a function to get user inputs and make predictions
-def predict_price(province_name, bedrooms, bathrooms, area, location, city, purpose, property_type):
+def predict_price(province_name, bedrooms, baths, area, location, city, purpose, property_type):
     # Load the trained model
     model = joblib.load('decision_tree_model.joblib')
     
@@ -45,7 +45,7 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
     data = pd.DataFrame({
         'province_name': [province_name],
         'bedrooms': [bedrooms],
-        'bathrooms': [bathrooms],
+        'bathrooms': [baths],
         'area': [area],
         'location': [location],
         'city': [city],
