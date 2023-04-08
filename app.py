@@ -41,7 +41,7 @@ def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_t
 # define the Streamlit app
 def app():
     st.title('Zameen Property Price Predictor')
-    
+    st.write(list(df.columns))
     # define input fields for the user to enter data
     bedrooms = st.number_input('Number of Bedrooms')
     bathrooms = st.number_input('Number of Bathrooms')
