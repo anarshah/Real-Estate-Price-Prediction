@@ -41,7 +41,7 @@ def predict_price(model, le, df, city_col, area_col, bedrooms_col, baths_col, ci
 st.title("Property Price Predictor")
 
 # Create input fields for user input
-city = st.text_input("City")
+city = st.text_input("Location (G-10, DHA etc)")
 area_sqft = st.number_input("Area (in square feet)", min_value=0, value=900, step=1)
 bedrooms = st.number_input("Number of bedrooms", min_value=0, value=2, step=1)
 baths = st.number_input("Number of bathrooms", min_value=0, value=2, step=1)
