@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from sklearn.preprocessing import LabelEncoder
 import joblib
 
 # load the trained model
