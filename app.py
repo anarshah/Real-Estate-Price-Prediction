@@ -16,28 +16,22 @@ for col in df.columns:
 
 model = joblib.load('decision_tree_model.joblib')
 
-def predict_price(model, le, df, X_columns, city, area_sqft, bedrooms, baths):
-    # Check if the city is in the LabelEncoder's classes
-    if city in le.classes_:
-        # Encode the city using the same LabelEncoder used during training
-        city_encoded = le.transform([city])[0]
-    else:
-        # Set the city_encoded to the mode of the 'city' column if the city is not in the training dataset
-        city_encoded = df['city'].mode().iloc[0]
+def predict_price(model, le, df, city_col, area_col, bedrooms_col, baths_col, city, area_sqft, bedrooms, baths):
+    # Encode the city using the same LabelEncoder used during training
+    city_encoded = le.transform([city])[0]
 
     # Create a new DataFrame with the same columns as your training data
-    input_data = pd.DataFrame(columns=X.columns)  # Change X_train to X
-
+    input_data = pd.DataFrame(columns=[city_col, area_col, bedrooms_col, baths_col])
     
     # Fill in the user's input data
-    input_data.loc[0, 'city'] = city_encoded
-    input_data.loc[0, 'area'] = area_sqft
-    input_data.loc[0, 'bedrooms'] = bedrooms
-    input_data.loc[0, 'baths'] = baths
+    input_data.loc[0, city_col] = city_encoded
+    input_data.loc[0, area_col] = area_sqft
+    input_data.loc[0, bedrooms_col] = bedrooms
+    input_data.loc[0, baths_col] = baths
 
     # Set other columns to their mean or mode values, as appropriate
     for col in input_data.columns:
-        if col not in ['city', 'area', 'bedrooms', 'baths']:
+        if col not in [city_col, area_col, bedrooms_col, baths_col]:
             if input_data[col].dtype == 'object':
                 input_data[col] = df[col].mode().iloc[0]
             else:
@@ -48,6 +42,7 @@ def predict_price(model, le, df, X_columns, city, area_sqft, bedrooms, baths):
     
     return price_prediction[0]
 
+le = joblib.load('label_encoder.joblib')
 
 # Set up the Streamlit app
 st.title("Property Price Predictor")
@@ -61,7 +56,7 @@ baths = st.number_input("Number of bathrooms", min_value=0, value=2, step=1)
 # Create a button to trigger the price prediction
 if st.button("Predict Price"):
     # Call the predict_price function with the user input
-    predicted_price = predict_price(model, le, df, X.columns, city, area_sqft, bedrooms, baths)
+    predicted_price = predict_price(model, le, df, 'city', 'area', 'bedrooms', 'baths', city, area_sqft, bedrooms, baths)
     
     # Display the predicted price
-    st.write(f"Predicted property price: {predicted_price:.2f} PKR.")
+    st.write(f"Predicted property price: {predicted_price:.2f}")
