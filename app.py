@@ -10,7 +10,7 @@ model = joblib.load('decision_tree_model.joblib')
 df = pd.read_csv('zameen-property-data.csv')
 
 # define the columns used to train the model
-columns = ['bedrooms', 'bathrooms', 'area', 'location', 'city', 'purpose']
+columns = ['bedrooms', 'bathrooms', 'area', 'location', 'city', 'purpose', 'property_type', 'construction_status', 'covered_area_unit']
 
 # get unique values for the "city" and "purpose" columns
 city_options = df['city'].unique()
@@ -22,9 +22,9 @@ def get_location_options(city):
     return location_options
 
 # define a function to get user inputs and make predictions
-def predict_price(bedrooms, bathrooms, area, location, city, purpose):
+def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type, construction_status, covered_area_unit):
     # create a DataFrame with the user inputs
-    data = pd.DataFrame([[bedrooms, bathrooms, area, location, city, purpose]], columns=columns)
+    data = pd.DataFrame([[bedrooms, bathrooms, area, location, city, purpose, property_type, construction_status, covered_area_unit]], columns=columns)
     
     # encode non-numeric data
     le = LabelEncoder()
@@ -59,10 +59,19 @@ def app():
     # define a dropdown menu for the "purpose" input field
     purpose = st.selectbox('Purpose', purpose_options)
     
+    # define a dropdown menu for the "property type" input field
+    property_type = st.selectbox('Property Type', df['property_type'].unique())
+    
+    # define a dropdown menu for the "construction status" input field
+    construction_status = st.selectbox('Construction Status', df['construction_status'].unique())
+    
+    # define a dropdown menu for the "covered area unit" input field
+    covered_area_unit = st.selectbox('Covered Area Unit', df['covered_area_unit'].unique())
+    
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose)
+        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type, construction_status, covered_area_unit)
         
         # display the predicted price to the user
         st.success(f'Predicted Price: {predicted_price:.2f} PKR')
