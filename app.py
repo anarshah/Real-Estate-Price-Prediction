@@ -16,10 +16,14 @@ for col in df.columns:
 
 model = joblib.load('decision_tree_model.joblib')
 
-# define a function to predict the price
 def predict_price(model, city, area_sqft, bedrooms, baths):
-    # Encode the city using the same LabelEncoder used during training
-    city_encoded = le.transform([city])[0]
+    # Check if the city is in the LabelEncoder's classes
+    if city in le.classes_:
+        # Encode the city using the same LabelEncoder used during training
+        city_encoded = le.transform([city])[0]
+    else:
+        # Set the city_encoded to the mode of the 'city' column if the city is not in the training dataset
+        city_encoded = df['city'].mode().iloc[0]
 
     # Create a new DataFrame with the same columns as your training data
     input_data = pd.DataFrame(columns=X_train.columns)
