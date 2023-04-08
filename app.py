@@ -12,8 +12,14 @@ df = pd.read_csv('zameen-property-data.csv')
 # define the columns used to train the model
 columns = ['bedrooms', 'bathrooms', 'area', 'location', 'city', 'purpose']
 
-# get unique values for the "purpose" column
+# get unique values for the "city" and "purpose" columns
+city_options = df['city'].unique()
 purpose_options = df['purpose'].unique()
+
+# define a function to get the unique values for the "location" column based on the selected city
+def get_location_options(city):
+    location_options = df[df['city'] == city]['location'].unique()
+    return location_options
 
 # define a function to get user inputs and make predictions
 def predict_price(bedrooms, bathrooms, area, location, city, purpose):
@@ -40,8 +46,15 @@ def app():
     bedrooms = st.number_input('Number of Bedrooms')
     bathrooms = st.number_input('Number of Bathrooms')
     area = st.number_input('Area (in square feet)')
-    location = st.text_input('Location')
-    city = st.text_input('City')
+    
+    # define a dropdown menu for the "city" input field
+    city = st.selectbox('City', city_options)
+    
+    # get unique values for the "location" column based on the selected city
+    location_options = get_location_options(city)
+    
+    # define a dropdown menu for the "location" input field
+    location = st.selectbox('Location', location_options)
     
     # define a dropdown menu for the "purpose" input field
     purpose = st.selectbox('Purpose', purpose_options)
