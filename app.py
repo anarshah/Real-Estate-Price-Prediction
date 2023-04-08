@@ -75,4 +75,4 @@ st.success(f'Predicted Price: {predicted_price:.2f} PKR')
 
 #run the Streamlit app
 if name == 'main':
-app()
+    app()
