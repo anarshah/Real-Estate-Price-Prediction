@@ -62,7 +62,7 @@ def app():
     property_type = st.selectbox('Property Type', df['property_type'].unique())
     
     # define input fields for the remaining columns to use as filters
-    price = st.slider('Price (in PKR)', min_value=df['price'].min(), max_value=df['price'].max(), step=100000, value=df['price'].mean())
+    price = st.slider('Price (in PKR)', min_value=df['price'].min(), max_value=df['price'].max(), step=100000, value=float(df['price'].mean()))
     baths = st.slider('Number of Baths', min_value=df['baths'].min(), max_value=df['baths'].max(), step=1, value=df['baths'].mean())
     date_added = st.date_input('Date Added', df['date_added'].min(), df['date_added'].max(), df['date_added'].mean())
     
