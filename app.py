@@ -26,18 +26,24 @@ df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 # define the columns used to train the model
 columns = ['bedrooms', 'bathrooms', 'area', 'location', 'purpose', 'property_type']
 
+# get unique values for the "city" column based on the selected province
+def get_city_options(province_name):
+    city_options = df[df['province_name'] == province_name]['city'].unique()
+    return city_options
+
 # get unique values for the "location" column based on the selected city
 def get_location_options(city):
     location_options = df[df['city'] == city]['location'].unique()
     return location_options
 
 # define a function to get user inputs and make predictions
-def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type):
+def predict_price(province_name, bedrooms, bathrooms, area, location, city, purpose, property_type):
     # Load the trained model
     model = joblib.load('decision_tree_model.joblib')
     
     # Create a dataframe with the test data
     data = pd.DataFrame({
+        'province_name': [province_name],
         'bedrooms': [bedrooms],
         'bathrooms': [bathrooms],
         'area': [area],
@@ -70,7 +76,13 @@ def app():
     df = pd.read_csv('zameen-property-data.csv')
     
     # define input fields for the user to enter data
-    city = st.selectbox('City', df['city'].unique())
+    province = st.selectbox('Province', df['province_name'].unique())
+    
+    # get unique values for the "city" column based on the selected province
+    city_options = df[df['province'] == province_name]['city'].unique()
+    
+    # define input fields for the user to enter data
+    city = st.selectbox('City', df['city_options'].unique())
     
     # get unique values for the "location" column based on the selected city
     location_options = df[df['city'] == city]['location'].unique()
@@ -87,7 +99,7 @@ def app():
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type)
+        predicted_price = predict_price(province_name, bedrooms, bathrooms, area, location, city, purpose, property_type)
         
         # display the predicted price to the user
         st.success(f'Predicted Price: {predicted_price:.2f} PKR')
