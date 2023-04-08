@@ -63,7 +63,7 @@ def app():
     
     # define input fields for the remaining columns to use as filters
     price = st.slider('Price (in PKR)', min_value=float(df['price'].min()), max_value=float(df['price'].max()), step=100000.0, value=float(df['price'].mean()))
-    baths = st.slider('Number of Baths', min_value=df['baths'].min(), max_value=df['baths'].max(), step=1, value=df['baths'].mean())
+    baths = st.slider('Number of Baths', min_value=int(df['baths'].min()), max_value=int(df['baths'].max()), step=1, value=int(df['baths'].mean()))
     date_added = st.date_input('Date Added', df['date_added'].min(), df['date_added'].max(), df['date_added'].mean())
     
     # define a button to trigger the prediction
