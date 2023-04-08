@@ -10,7 +10,7 @@ model = joblib.load('decision_tree_model.joblib')
 df = pd.read_csv('zameen-property-data.csv')
 
 # define the columns used to train the model
-columns = ['bedrooms', 'baths', 'area', 'location', 'city', 'purpose', 'property_type', 'price']
+columns = ['bedrooms', 'bathrooms', 'area', 'location', 'city', 'purpose', 'property_type', 'covered_area_unit']
 
 # get unique values for the "city" and "purpose" columns
 city_options = df['city'].unique()
@@ -22,9 +22,12 @@ def get_location_options(city):
     return location_options
 
 # define a function to get user inputs and make predictions
-def predict_price(bedrooms, baths, area, location, city, purpose, property_type):
+def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type):
     # create a DataFrame with the user inputs
-    data = pd.DataFrame([[bedrooms, baths, area, location, city, purpose, property_type]], columns=columns[:-1])
+    data = pd.DataFrame([[bedrooms, bathrooms, area, location, city, purpose, property_type, 'square feet']], columns=columns)
+    
+    # filter the dataset based on the user's input
+    filtered_df = df[(df['city'] == city) & (df['purpose'] == purpose) & (df['property_type'] == property_type)]
     
     # encode non-numeric data
     le = LabelEncoder()
@@ -41,10 +44,10 @@ def predict_price(bedrooms, baths, area, location, city, purpose, property_type)
 # define the Streamlit app
 def app():
     st.title('Zameen Property Price Predictor')
-    st.write(list(df.columns))
+    
     # define input fields for the user to enter data
     bedrooms = st.number_input('Number of Bedrooms')
-    baths = st.number_input('Number of Baths')
+    bathrooms = st.number_input('Number of Bathrooms')
     area = st.number_input('Area (in square feet)')
     
     # define a dropdown menu for the "city" input field
@@ -65,11 +68,11 @@ def app():
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(bedrooms, baths, area, location, city, purpose, property_type)
+        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type)
         
         # display the predicted price to the user
-        st.success(f'Predicted Price: {predicted_price:.2f} PKR')
+st.success(f'Predicted Price: {predicted_price:.2f} PKR')
 
-# run the Streamlit app
-if __name__ == '__main__':
-    app()
+#run the Streamlit app
+if name == 'main':
+app()
