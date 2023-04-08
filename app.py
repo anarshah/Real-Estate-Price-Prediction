@@ -68,10 +68,10 @@ def app():
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type)
-        
+        predicted_price_value = predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type)
+
         # display the predicted price to the user
-st.success(f'Predicted Price: {predicted_price:.2f} PKR')
+        st.success(f'Predicted Price: {predicted_price_value:.2f} PKR')
 
 #run the Streamlit app
 if name == 'main':
