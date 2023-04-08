@@ -68,19 +68,22 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
 
     # Map the user input data to the columns used during training
     column_mapping = {
-        'location': 'location_id',
         'bathrooms': 'baths'
     }
     data = data.rename(columns=column_mapping)
 
+    # Map the user input location to location_id and latitude
+    location_to_id = ...  # Please use your existing location_to_id mapping here
+    data['location_id'] = data['location'].map(location_to_id['location_id'])
+    data['latitude'] = data['location'].map(location_to_id['latitude'])
+
     # Reorder the columns to match the order used during training
-    data = data[['location_id', 'property_type', 'location_id', 'area', 'baths', 'purpose', 'bedrooms']]
+    data = data[['location_id', 'property_type', 'latitude', 'area', 'baths', 'purpose', 'bedrooms']]
 
     # Make a prediction
     predicted_price = model.predict(data)[0]
 
     return predicted_price
-
 
 # define the Streamlit app
 def app():
