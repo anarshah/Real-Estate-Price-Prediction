@@ -26,6 +26,9 @@ df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 # define the columns used to train the model
 columns = ['bedrooms', 'bathrooms', 'area', 'location', 'purpose', 'property_type']
 
+# select the desired features from the original dataframe
+selected_features = df[columns]
+
 # get unique values for the "city" column based on the selected province
 def get_city_options(province_name):
     city_options = df[df['province_name'] == province_name]['city'].unique()
@@ -55,13 +58,13 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
     
     # Encode non-numerical data
     le = LabelEncoder()
-    for col in data.columns:
+    for col in data.selected_features:
         if data[col].dtype == 'object':
             data[col] = le.fit_transform(data[col].astype(str))
 
     # Impute missing values
     imputer = SimpleImputer(strategy='most_frequent')
-    data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+    data = pd.DataFrame(imputer.fit_transform(data), selected_features=data.selected_features)
 
     # Make a prediction
     predicted_price = model.predict(data)[0]
