@@ -8,13 +8,8 @@ import joblib
 # Load the dataset
 df = pd.read_csv('zameen-property-data.csv')
 
-# encode non-numerical data
-le = LabelEncoder()
-for col in df.columns:
-    if df[col].dtype == 'object':
-        df[col] = le.fit_transform(df[col].astype(str))
-
 model = joblib.load('decision_tree_model.joblib')
+le = joblib.load('label_encoder.joblib')
 
 def predict_price(model, le, df, city_col, area_col, bedrooms_col, baths_col, city, area_sqft, bedrooms, baths):
     # Encode the city using the same LabelEncoder used during training
@@ -41,8 +36,6 @@ def predict_price(model, le, df, city_col, area_col, bedrooms_col, baths_col, ci
     price_prediction = model.predict(input_data)
     
     return price_prediction[0]
-
-le = joblib.load('label_encoder.joblib')
 
 # Set up the Streamlit app
 st.title("Property Price Predictor")
