@@ -1,19 +1,24 @@
 import pandas as pd
 import streamlit as st
-from sklearn.preprocessing import LabelEncoder
 import joblib
+from sklearn.preprocessing import LabelEncoder
 
 # load the trained model
 model = joblib.load('decision_tree_model.joblib')
 
+# load the dataset
+df = pd.read_csv('zameen-property-data.csv')
+
 # define the columns used to train the model
-columns = ['bedrooms', 'bathrooms', 'area', 'location']
+columns = ['bedrooms', 'bathrooms', 'area', 'location', 'city', 'purpose']
+
+# get unique values for the "purpose" column
+purpose_options = df['purpose'].unique()
 
 # define a function to get user inputs and make predictions
-# define a function to get user inputs and make predictions
-def predict_price(bedrooms, bathrooms, area, location):
+def predict_price(bedrooms, bathrooms, area, location, city, purpose):
     # create a DataFrame with the user inputs
-    data = pd.DataFrame([[bedrooms, bathrooms, area, location]], columns=columns)
+    data = pd.DataFrame([[bedrooms, bathrooms, area, location, city, purpose]], columns=columns)
     
     # encode non-numeric data
     le = LabelEncoder()
@@ -29,18 +34,22 @@ def predict_price(bedrooms, bathrooms, area, location):
 
 # define the Streamlit app
 def app():
-    st.title('Property Price Predictor')
+    st.title('Zameen Property Price Predictor')
     
     # define input fields for the user to enter data
     bedrooms = st.number_input('Number of Bedrooms')
     bathrooms = st.number_input('Number of Bathrooms')
     area = st.number_input('Area (in square feet)')
     location = st.text_input('Location')
+    city = st.text_input('City')
+    
+    # define a dropdown menu for the "purpose" input field
+    purpose = st.selectbox('Purpose', purpose_options)
     
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(bedrooms, bathrooms, area, location)
+        predicted_price = predict_price(bedrooms, bathrooms, area, location, city, purpose)
         
         # display the predicted price to the user
         st.success(f'Predicted Price: {predicted_price:.2f} PKR')
