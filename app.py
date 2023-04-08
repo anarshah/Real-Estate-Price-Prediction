@@ -61,7 +61,7 @@ baths = st.number_input("Number of bathrooms", min_value=0, value=2, step=1)
 # Create a button to trigger the price prediction
 if st.button("Predict Price"):
     # Call the predict_price function with the user input
-    predicted_price = predict_price(best_model, le, df, X.columns, city, area_sqft, bedrooms, baths)
+    predicted_price = predict_price(model, le, df, X.columns, city, area_sqft, bedrooms, baths)
     
     # Display the predicted price
     st.write(f"Predicted property price: {predicted_price:.2f} PKR.")
