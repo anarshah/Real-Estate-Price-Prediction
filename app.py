@@ -16,13 +16,13 @@ def predict_price(location, sqft, bedrooms, bathrooms):
     input_data = [[location_encoded, sqft, bedrooms, bathrooms]]
     input_df = pd.DataFrame(input_data, columns=['location_encoded', 'sqft', 'bedrooms', 'bathrooms'])
     
-    # check the number of columns in the input data frame
-    if input_df.shape[1] != model.tree_.n_features:
-        raise ValueError(f"Number of input features {input_df.shape[1]} does not match the expected number of features {model.tree_.n_features}")
+    # Debugging code
+    print(f"input_df shape: {input_df.shape}")
+    print(f"model input shape: {model.tree_.n_features}")
 
     # predict the price using the fitted model
     prediction = model.predict(input_df)
-    print(input_df.shape)
+
     return prediction
 
 # set up the Streamlit app
