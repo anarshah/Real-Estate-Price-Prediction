@@ -79,7 +79,7 @@ def app():
     province = st.selectbox('Province', df['province_name'].unique())
     
     # get unique values for the "city" column based on the selected province
-    city_options = df[df['province_name'] == province_name]['city'].unique()
+    city_options = df[df['province_name'] == province]['city'].unique()
     
     # define input fields for the user to enter data
     city = st.selectbox('City', df['city_options'].unique())
