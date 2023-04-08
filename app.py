@@ -40,8 +40,8 @@ def get_location_options(city):
 def predict_price(province_name, bedrooms, bathrooms, area, location, city, purpose, property_type):
     # Load the trained model
     model = joblib.load('decision_tree_model.joblib')
-    
-    # Create a dataframe with the test data
+
+    # Create a dataframe with the user input
     data = pd.DataFrame({
         'province_name': [province_name],
         'bedrooms': [bedrooms],
@@ -52,21 +52,35 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
         'purpose': [purpose],
         'property_type': [property_type]
     })
-    
-    # Encode non-numerical data
+
+    # Perform the same preprocessing steps as in the training data
+    data = data.drop(['province_name', 'city'], axis=1)
     le = LabelEncoder()
     for col in data.columns:
         if data[col].dtype == 'object':
             data[col] = le.fit_transform(data[col].astype(str))
 
-    # Impute missing values
-    imputer = SimpleImputer(strategy='most_frequent')
-    data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+    imputer_mode = SimpleImputer(strategy='most_frequent')
+    data.iloc[:, [1]] = imputer_mode.fit_transform(data.iloc[:, [1]])
+
+    imputer_mean = SimpleImputer(strategy='mean')
+    data.iloc[:, [3, 4, 5]] = imputer_mean.fit_transform(data.iloc[:, [3, 4, 5]])
+
+    # Map the user input data to the columns used during training
+    column_mapping = {
+        'location': 'location_id',
+        'bathrooms': 'baths'
+    }
+    data = data.rename(columns=column_mapping)
+
+    # Reorder the columns to match the order used during training
+    data = data[['location_id', 'property_type', 'location', 'area', 'baths', 'purpose', 'bedrooms']]
 
     # Make a prediction
     predicted_price = model.predict(data)[0]
 
     return predicted_price
+
 
 # define the Streamlit app
 def app():
