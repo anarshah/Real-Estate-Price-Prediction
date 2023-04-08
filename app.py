@@ -22,7 +22,7 @@ def predict_price(location, sqft, bedrooms, bathrooms):
 
     # predict the price using the fitted model
     prediction = model.predict(input_df)
-
+    print(input_df.shape)
     return prediction
 
 # set up the Streamlit app
