@@ -25,7 +25,7 @@ def predict_price(location, area, bedrooms, bathrooms):
 st.title("Property Price Predictor")
 
 # Create input fields for user input
-location = st.selectbox("Location", options=df['location'].unique())
+location = st.selectbox("Location", options=pd.read_csv('zameen-property-data.csv')['location'].unique())
 area = st.number_input("Area (in Marla)")
 bedrooms = st.number_input("Bedrooms")
 bathrooms = st.number_input("Bathrooms")
