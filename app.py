@@ -26,7 +26,8 @@ def predict_price(model, city, area_sqft, bedrooms, baths):
         city_encoded = df['city'].mode().iloc[0]
 
     # Create a new DataFrame with the same columns as your training data
-    input_data = pd.DataFrame(columns=X_train.columns)
+    input_data = pd.DataFrame(columns=X.columns)  # Change X_train to X
+
     
     # Fill in the user's input data
     input_data.loc[0, 'city'] = city_encoded
