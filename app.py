@@ -11,7 +11,7 @@ model = joblib.load('decision_tree_model.joblib')
 df = pd.read_csv('zameen-property-data.csv')
 
 # drop unnecessary columns
-df = df.drop(['property_id', 'page_url', 'city', 'province_name', 'date_added', 'agency', 'agent'], axis=1)
+df = df.drop(['property_id', 'page_url', 'province_name', 'date_added', 'agency', 'agent'], axis=1)
 
 # encode non-numerical data
 le = LabelEncoder()
