@@ -4,8 +4,16 @@ from sklearn.tree import DecisionTreeRegressor
 import joblib
 
 # load the saved model and label encoder
+# Load the dataset
+df = pd.read_csv('zameen-property-data.csv')
+
+# encode non-numerical data
+le = LabelEncoder()
+for col in df.columns:
+    if df[col].dtype == 'object':
+        df[col] = le.fit_transform(df[col].astype(str))
+
 model = joblib.load('decision_tree_model.joblib')
-encoder = joblib.load('label_encoder.joblib')
 
 # define a function to predict the price
 def predict_price(model, city, area_sqft, bedrooms, baths):
