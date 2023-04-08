@@ -15,11 +15,11 @@ def predict_price(location, sqft, bedrooms, bathrooms):
     # create a data frame with the input features
     input_data = [[location_encoded, sqft, bedrooms, bathrooms]]
     input_df = pd.DataFrame(input_data, columns=['location_encoded', 'sqft', 'bedrooms', 'bathrooms'])
-
-    # Check if the number of columns in the input dataframe matches the number of columns in the model
+    
+    # check the number of columns in the input data frame
     if input_df.shape[1] != model.tree_.n_features:
         raise ValueError(f"Number of input features {input_df.shape[1]} does not match the expected number of features {model.tree_.n_features}")
-        
+
     # predict the price using the fitted model
     prediction = model.predict(input_df)
 
