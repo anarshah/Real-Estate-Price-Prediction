@@ -11,9 +11,9 @@ df = pd.read_csv('zameen-property-data.csv')
 model = joblib.load('decision_tree_model.joblib')
 le = joblib.load('label_encoder.joblib')
 
-def predict_price(model, city, area_sqft, bedrooms, baths):
+def predict_price(model, location, city, area_sqft, bedrooms, baths):
     # Encode the location, city, and area using the label encoder object
-    le.transform([location])
+    le.transform([location])[0]
 
     # Create a new DataFrame with the same columns as your training data
     input_data = pd.DataFrame(columns=X.columns)
@@ -51,7 +51,7 @@ baths = st.number_input("Number of bathrooms", min_value=0, value=2, step=1)
 # Create a button to trigger the price prediction
 if st.button("Predict Price"):
     # Call the predict_price function with the user input
-    predicted_price = predict_price(model, city, area_sqft, bedrooms, baths)
+    predicted_price = predict_price(model, location, city, area_sqft, bedrooms, baths)
     
     # Display the predicted price
     st.write(f"Predicted property price: {predicted_price:.2f}")
