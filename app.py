@@ -99,7 +99,7 @@ def app():
     # define a button to trigger the prediction
     if st.button('Predict Price'):
         # make a prediction using the user inputs
-        predicted_price = predict_price(province_name, bedrooms, bathrooms, area, location, city, purpose, property_type)
+        predicted_price = predict_price(province, bedrooms, bathrooms, area, location, city, purpose, property_type)
         
         # display the predicted price to the user
         st.success(f'Predicted Price: {predicted_price:.2f} PKR')
