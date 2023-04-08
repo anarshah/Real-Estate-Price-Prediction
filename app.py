@@ -33,19 +33,33 @@ def get_location_options(city):
 
 # define a function to get user inputs and make predictions
 def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_type):
+    # Load the trained model
+    model = joblib.load('decision_tree_model.joblib')
     
-    # create a DataFrame with the input data
-    data = pd.DataFrame({'beds': [bedrooms], 'baths': [bathrooms], 'area': [area], 'location_id': [location], 'city_id': [city], 'purpose_id': [purpose], 'property_type_id': [property_type]})
+    # Create a dataframe with the test data
+    data = pd.DataFrame({
+        'bedrooms': [bedrooms],
+        'bathrooms': [bathrooms],
+        'area': [area],
+        'location': [location],
+        'city': [city],
+        'purpose': [purpose],
+        'property_type': [property_type]
+    })
     
-    # rename the 'baths' column to 'bathrooms'
-    data = data.rename(columns={'baths': 'bathrooms'})
-    
-    # impute missing values using the trained imputer
-    data = pd.DataFrame(imputer.transform(data), columns=data.columns)
-    
-    # make the price prediction using the trained model
+    # Encode non-numerical data
+    le = LabelEncoder()
+    for col in data.columns:
+        if data[col].dtype == 'object':
+            data[col] = le.fit_transform(data[col].astype(str))
+
+    # Impute missing values
+    imputer = SimpleImputer(strategy='most_frequent')
+    data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
+
+    # Make a prediction
     predicted_price = model.predict(data)[0]
-    
+
     return predicted_price
 
 # define the Streamlit app
