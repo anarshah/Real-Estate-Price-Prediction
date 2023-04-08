@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.preprocessing import LabelEncoder
 import joblib
 
 # load the saved model and label encoder
