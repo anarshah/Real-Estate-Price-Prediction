@@ -58,13 +58,13 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
     
     # Encode non-numerical data
     le = LabelEncoder()
-    for col in data.selected_features:
+    for col in data.columns:
         if data[col].dtype == 'object':
             data[col] = le.fit_transform(data[col].astype(str))
 
     # Impute missing values
     imputer = SimpleImputer(strategy='most_frequent')
-    data = pd.DataFrame(imputer.fit_transform(data), selected_features=data.selected_features)
+    data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
 
     # Make a prediction
     predicted_price = model.predict(data)[0]
