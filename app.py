@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # Load the label encoder and decision tree model
 le = joblib.load('label_encoder.joblib')
