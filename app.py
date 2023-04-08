@@ -26,9 +26,6 @@ df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 # define the columns used to train the model
 columns = ['bedrooms', 'bathrooms', 'area', 'location', 'purpose', 'property_type']
 
-# select the desired features from the original dataframe
-selected_features = df[columns]
-
 # get unique values for the "city" column based on the selected province
 def get_city_options(province_name):
     city_options = df[df['province_name'] == province_name]['city'].unique()
