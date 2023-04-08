@@ -64,7 +64,7 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
     data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
 
     # Make a prediction
-    predicted_price = model.predict(data)[0]
+    predicted_price = model.predict(data.values)[0]
 
     return predicted_price
 
