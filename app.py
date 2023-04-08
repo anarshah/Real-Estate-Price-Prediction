@@ -74,7 +74,7 @@ def predict_price(province_name, bedrooms, bathrooms, area, location, city, purp
     data = data.rename(columns=column_mapping)
 
     # Reorder the columns to match the order used during training
-    data = data[['location_id', 'property_type', 'location', 'area', 'baths', 'purpose', 'bedrooms']]
+    data = data[['location_id', 'property_type', 'location_id', 'area', 'baths', 'purpose', 'bedrooms']]
 
     # Make a prediction
     predicted_price = model.predict(data)[0]
