@@ -39,8 +39,9 @@ def predict_price(bedrooms, bathrooms, area, location, city, purpose, property_t
     numeric_cols.remove('latitude') # exclude location column
     numeric_cols.remove('longitude') # exclude location column
     numeric_cols.remove('date_added') # exclude date column
+    numeric_cols.remove('price') # exclude price column
     data = df[numeric_cols]
-
+    
     # Calculate mean values for imputation
     mean_values = data.mean()
 
