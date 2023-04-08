@@ -13,9 +13,7 @@ le = joblib.load('label_encoder.joblib')
 
 def predict_price(model, city, area_sqft, bedrooms, baths):
     # Encode the location, city, and area using the label encoder object
-    location_encoded = le.transform([location])[0]
-    city_encoded = le.transform([city])[0]
-    area_encoded = le.transform([area])[0]
+    le.transform([location])
 
     # Create a new DataFrame with the same columns as your training data
     input_data = pd.DataFrame(columns=X.columns)
