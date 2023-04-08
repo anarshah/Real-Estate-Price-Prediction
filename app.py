@@ -74,7 +74,7 @@ def app():
     
     # load the dataset
     df = pd.read_csv('zameen-property-data.csv')
-    st.write(df.columns)
+    
     # define input fields for the user to enter data
     province = st.selectbox('Province', df['province_name'].unique())
     
