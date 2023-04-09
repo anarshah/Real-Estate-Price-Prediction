@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import numpy as np
 
 # Load the trained model
 model = joblib.load("zameen_property_model.joblib")
