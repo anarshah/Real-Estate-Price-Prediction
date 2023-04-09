@@ -31,7 +31,7 @@ def get_user_inputs():
 # Create a function to make predictions
 def make_predictions(model, inputs):
     # Define the list of relevant features
-    features = ['property_type', 'location', 'city', 'province_name', 'area', 'purpose', 'bedrooms', 'baths', 'date_added']
+    features = ['property_type', 'location', 'city', 'province_name', 'area', 'purpose', 'bedrooms']
 
     # Extract the relevant features from the input data
     inputs_relevant = inputs[features]
