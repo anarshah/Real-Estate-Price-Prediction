@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.impute import SimpleImputer
 
 # load the trained model
-model = joblib.load('decision_tree_model.joblib')
+model = joblib.load('zameen_property_model.joblib')
 
 # load the dataset
 df = pd.read_csv('zameen-property-data.csv')
@@ -39,7 +39,7 @@ def get_location_options(city):
 # define a function to get user inputs and make predictions
 def predict_price(province_name, bedrooms, baths, area, location, city, purpose, property_type):
     # Load the trained model
-    model = joblib.load('decision_tree_model.joblib')
+    model = joblib.load('zameen_property_model.joblib')
     
     # Create a dataframe with the test data
     data = pd.DataFrame({
