@@ -30,8 +30,19 @@ def get_user_inputs():
 
 # Create a function to make predictions
 def make_predictions(model, inputs):
-    inputs_encoded = inputs.apply(LabelEncoder().fit_transform)
+    # Define the list of relevant features
+    features = ['property_type', 'location', 'city', 'province_name', 'area', 'purpose', 'beds', 'baths', 'year_added', 'month_added', 'day_added', 'latitude', 'longitude', 'agency', 'agent']
+
+    # Extract the relevant features from the input data
+    inputs_relevant = inputs[features]
+
+    # Encode the relevant features
+    encoder = LabelEncoder()
+    inputs_encoded = inputs_relevant.apply(encoder.fit_transform)
+
+    # Make predictions using the trained model
     return model.predict(inputs_encoded)
+
 
 # Create the Streamlit app
 st.title("Zameen Property Price Predictor")
