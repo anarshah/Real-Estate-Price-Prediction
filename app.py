@@ -59,6 +59,8 @@ input_df = pd.DataFrame({
 
 # Encode categorical features
 encoder = joblib.load("encoder.joblib")
+encoder.classes_ = np.append(encoder.classes_, 'House')
+input_df['property_type'] = encoder.transform(input_df['property_type'])
 input_df['property_type'] = encoder.transform(input_df['property_type'])
 input_df['location'] = encoder.transform(input_df['location'])
 input_df['city'] = encoder.transform(input_df['city'])
