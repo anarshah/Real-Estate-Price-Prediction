@@ -1,113 +1,72 @@
-import pandas as pd
 import streamlit as st
 import joblib
-from sklearn.preprocessing import LabelEncoder
-from sklearn.impute import SimpleImputer
+import pandas as pd
 
-# load the trained model
-model = joblib.load('decision_tree_model.joblib')
+# Load the trained model
+model = joblib.load("zameen_property_model.joblib")
 
-# load the dataset
-df = pd.read_csv('zameen-property-data.csv')
+def preprocess_area(area_str):
+    def marla_to_sqft(marla):
+        return marla * 225
 
-# drop unnecessary columns
-# df = df.drop(['property_id', 'page_url', 'province_name', 'date_added', 'agency', 'agent'], axis=1)
+    def kanal_to_sqft(kanal):
+        return kanal * 5062.5
 
-# encode non-numerical data
-le = LabelEncoder()
-for col in df.columns:
-    if df[col].dtype == 'object':
-        df[col] = le.fit_transform(df[col].astype(str))
+    try:
+        area_value, area_unit = area_str.split()
+    except ValueError:
+        # If the input string cannot be split into two values, return a default value
+        print("Invalid input format for area:", area_str)
+        return 0
 
-# impute missing values
-imputer = SimpleImputer()
-df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    area_value = float(area_value.replace(",", ""))
 
-# define the columns used to train the model
-columns = ['bedrooms', 'baths', 'area', 'location', 'purpose', 'property_type']
+    if area_unit.lower() == "marla":
+        area_value = marla_to_sqft(area_value)
+    elif area_unit.lower() == "kanal":
+        area_value = kanal_to_sqft(area_value)
+    # Add more units if needed
 
-# get unique values for the "city" column based on the selected province
-def get_city_options(province_name):
-    city_options = df[df['province_name'] == province_name]['city'].unique()
-    return city_options
+    return area_value
 
-# get unique values for the "location" column based on the selected city
-def get_location_options(city):
-    location_options = df[df['city'] == city]['location'].unique()
-    return location_options
+# Load the data for province, city, and location options
+data = pd.read_csv("zameen-property-data.csv")
+provinces = data["province_name"].unique()
 
-# define a function to get user inputs and make predictions
-def predict_price(province_name, bedrooms, baths, area, location, city, purpose, property_type):
-    # Load the trained model
-    model = joblib.load('decision_tree_model.joblib')
-    
-    # Create a dataframe with the test data
-    data = pd.DataFrame({
-        'province_name': [province_name],
-        'bedrooms': [bedrooms],
-        'bathrooms': [baths],
-        'area': [area],
-        'location': [location],
-        'city': [city],
-        'purpose': [purpose],
-        'property_type': [property_type]
-    })
-    
-    # Encode non-numerical data
-    le = LabelEncoder()
-    for col in data.columns:
-        if data[col].dtype == 'object':
-            data[col] = le.fit_transform(data[col].astype(str))
+# Define the options for province, city, and location
+province_option = st.selectbox("Select Province", provinces)
+city_option = st.selectbox("Select City", data[data["province_name"] == province_option]["city"].unique())
+location_option = st.selectbox("Select Location", data[data["city"] == city_option]["location"].unique())
 
-    # Impute missing values
-    imputer = SimpleImputer(strategy='most_frequent')
-    data = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
-    
-    # Debug: Print the preprocessed data
-    print(data)
+# Define the input options for area, bedrooms, baths, purpose, and property type
+area_input = st.number_input("Area in Square Feet")
+bedrooms_input = st.number_input("Number of Bedrooms")
+baths_input = st.number_input("Number of Baths")
+purpose_input = st.selectbox("Select Purpose", ["Buy", "Rent"])
+property_type_input = st.selectbox("Select Property Type", ["House", "Flat"])
 
-    # Make a prediction
-    predicted_price = model.predict(data.values)[0]
+# Define the input dataframe based on the user inputs
+input_df = pd.DataFrame({
+    "province_name": [province_option],
+    "city": [city_option],
+    "location": [location_option],
+    "area": [preprocess_area(str(area_input) + " Square Feet")],
+    "bedrooms": [bedrooms_input],
+    "baths": [baths_input],
+    "purpose": [purpose_input],
+    "property_type": [property_type_input]
+})
 
-    return predicted_price
+# Encode categorical features
+encoder = joblib.load("encoder.joblib")
+input_df['property_type'] = encoder.transform(input_df['property_type'])
+input_df['location'] = encoder.transform(input_df['location'])
+input_df['city'] = encoder.transform(input_df['city'])
+input_df['province_name'] = encoder.transform(input_df['province_name'])
+input_df['purpose'] = encoder.transform(input_df['purpose'])
 
-# define the Streamlit app
-def app():
-    st.title('Zameen Property Price Predictor')
-    
-    # load the dataset
-    df = pd.read_csv('zameen-property-data.csv')
-    
-    # define input fields for the user to enter data
-    province = st.selectbox('Province', df['province_name'].unique())
-    
-    # get unique values for the "city" column based on the selected province
-    city_options = df[df['province_name'] == province]['city'].unique()
-    
-    # define input fields for the user to enter data
-    city = st.selectbox('City', city_options)
-    
-    # get unique values for the "location" column based on the selected city
-    location_options = df[df['city'] == city]['location'].unique()
-    
-    location = st.selectbox('Location', location_options)
-    
-    area = st.number_input('Area (in square feet)')
-    bedrooms = st.number_input('Number of Bedrooms')
-    bathrooms = st.number_input('Number of Bathrooms')
-    
-    purpose = st.selectbox('Purpose', df['purpose'].unique())
-    property_type = st.selectbox('Property Type', df['property_type'].unique())
-    
-    # define a button to trigger the prediction
-    if st.button('Predict Price'):
-        # make a prediction using the user inputs
-        predicted_price = predict_price(province, bedrooms, bathrooms, area, location, city, purpose, property_type)
-        
-        # display the predicted price to the user
-        st.success(f'Predicted Price: {predicted_price:.2f} PKR')
+# Make predictions
+prediction = model.predict(input_df)
 
-
-# run the Streamlit app
-if __name__ == '__main__':
-    app()
+# Display the predicted price to the user
+st.write("The predicted price is: ", prediction[0])
