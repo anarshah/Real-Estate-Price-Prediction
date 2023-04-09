@@ -23,7 +23,7 @@ def get_user_inputs():
         "city": [city],
         "province_name": [province_name],
         "bedrooms": [bedrooms],
-        "bathrooms": [bathrooms],
+        "baths": [baths],
         "area": [area],
         "purpose": [purpose],
     })
