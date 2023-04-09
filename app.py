@@ -5,16 +5,20 @@ import pandas as pd
 # Load the trained model
 model = joblib.load("zameen_property_model.joblib")
 
-# preprocess_area function definition
 def preprocess_area(area_str):
-    
     def marla_to_sqft(marla):
         return marla * 225
 
     def kanal_to_sqft(kanal):
         return kanal * 5062.5
 
-    area_value, area_unit = area_str.split()
+    try:
+        area_value, area_unit = area_str.split()
+    except ValueError:
+        # If the input string cannot be split into two values, return a default value
+        print("Invalid input format for area:", area_str)
+        return 0
+
     area_value = float(area_value.replace(",", ""))
 
     if area_unit.lower() == "marla":
@@ -24,6 +28,7 @@ def preprocess_area(area_str):
     # Add more units if needed
 
     return area_value
+
 # Load the data for province, city, and location options
 data = pd.read_csv("zameen-property-data.csv")
 provinces = data["province_name"].unique()
