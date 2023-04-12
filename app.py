@@ -1,42 +1,41 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from joblib import load
 
 # Load the trained model
-dtr = load('property_predictor.joblib')
+model = load('property_predictor.joblib')
 
-# Load the city and location data
-city_locations = pd.read_csv('property_updated_csv.csv')['city_location'].unique()
+# Load the dataset and preprocess it as required
+data = pd.read_csv('property_updated_csv.csv')
+df = data.copy()
 
-# Create a Streamlit app
-st.title('Property Price Predictor')
+df = df.reset_index()
+df = df.drop("index",axis=1)
+# preprocessing code ...
 
-# Add user input options
-city = st.selectbox('Select city:', np.unique([x.split('_')[0] for x in city_locations]))
-locations = [x.split('_')[1] for x in city_locations if x.split('_')[0] == city]
-location = st.selectbox('Select location:', locations)
-sqft = st.slider('Enter the total square feet area:', 100, 5000, 500)
-bedrooms = st.slider('Enter the number of bedrooms:', 1, 10, 2)
-baths = st.slider('Enter the number of bathrooms:', 1, 10, 2)
+# Define the input features for the model
+X = df.drop('price', axis=1)
 
-# Define a function to make predictions
-def predict_price(city, location, sqft, bedrooms, baths):
-    city_location = city + '_' + location
-    loc_index = np.where(X.columns == city_location)[0][0]
+# Define the user input
+city = st.selectbox('City', df['city'].unique())
+location = st.selectbox('Location', df[df['city'] == city]['location'].unique())
+sqft = st.number_input('Area in Square Feet')
+bedrooms = st.slider('Bedrooms', 1, 10)
+baths = st.slider('Bathrooms', 1, 10)
 
-    x = np.zeros(len(X.columns))
-    x[0] = baths
-    x[1] = sqft
-    x[2] = bedrooms
-    if loc_index >= 0:
-        x[loc_index] = 1
-    return dtr.predict([x])[0] / 100000
+# Concatenate city and location to form the city_location string
+city_location = city + '_' + location
 
-# Make predictions based on user input
-city_location_value = city + '_' + location
-predicted_price = predict_price(city, location, sqft, bedrooms, baths)
+# Find the index of the corresponding feature in X
+loc_index = X.columns.get_loc(city_location)
 
-# Show the predicted price
-st.subheader('Predicted Price:')
-st.write(f'{int(predicted_price)} Lakhs')
+# Define the input values for the model
+x = [baths, sqft, bedrooms] + [0] * (len(X.columns) - 3)
+if loc_index >= 0:
+    x[loc_index] = 1
+
+# Make a prediction using the trained model
+price = model.predict([x])[0] / 100000
+
+# Display the predicted price to the user
+st.write(f"The predicted price for a {bedrooms} bedroom property with {baths} bathrooms and {sqft} square feet area in {location} is {price:.2f} lakhs.")
