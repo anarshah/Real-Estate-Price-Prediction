@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 from joblib import load
 from sklearn.tree import DecisionTreeRegressor
+import warnings
+
+warnings.filterwarnings('ignore')
 
 # Load the saved model
 dtr = load('property_predictor.joblib')
