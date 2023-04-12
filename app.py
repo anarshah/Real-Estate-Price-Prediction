@@ -24,10 +24,10 @@ def predict_price(city, location, sqft, bedrooms, baths):
     x[0] = baths
     x[1] = sqft
     x[2] = bedrooms
-    
-    city_location_indices = data[data['city_location'] == city_location].index
-    X_city_location = X.loc[city_location_indices]
-    X_city_location = X_city_location.reset_index(drop=True)
+
+    loc_index = np.where(X.columns == city_location)[0][0]
+    if loc_index >= 0:
+        x[loc_index] = 1
 
     return dtr.predict([x])[0]
 
