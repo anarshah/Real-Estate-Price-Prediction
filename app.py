@@ -1,26 +1,42 @@
 import streamlit as st
-import joblib
 import pandas as pd
+import numpy as np
+from joblib import load
 
-# Load the saved model
-dtr_model = joblib.load('property_predictor.joblib')
+# Load the trained model
+dtr = load('property_predictor.joblib')
 
-df = pd.read_csv('zameen-property-data.csv')
-# Get the unique city_location values from the dataset
-city_locations = df['city_location'].unique()
+# Load the city and location data
+city_locations = pd.read_csv('zameen-property-data.csv')['city_location'].unique()
 
-# Create a selectbox for city_location
-city_location = st.selectbox('Select city and location:', city_locations)
+# Create a Streamlit app
+st.title('Property Price Predictor')
 
-# Get the bedrooms and baths values from the user
-bedrooms = st.number_input('Enter number of bedrooms:', value=2)
-baths = st.number_input('Enter number of baths:', value=2)
+# Add user input options
+city = st.selectbox('Select city:', np.unique([x.split('_')[0] for x in city_locations]))
+locations = [x.split('_')[1] for x in city_locations if x.split('_')[0] == city]
+location = st.selectbox('Select location:', locations)
+sqft = st.slider('Enter the total square feet area:', 100, 5000, 500)
+bedrooms = st.slider('Enter the number of bedrooms:', 1, 10, 2)
+baths = st.slider('Enter the number of bathrooms:', 1, 10, 2)
 
-# Get the total square feet area from the user
-sqft = st.number_input('Enter total square feet area:', value=1000)
+# Define a function to make predictions
+def predict_price(city, location, sqft, bedrooms, baths):
+    city_location = city + '_' + location
+    loc_index = np.where(X.columns == city_location)[0][0]
 
-# Call the predict_price function to get the predicted price
-predicted_price = predict_price(city_location.split('_')[0], city_location.split('_')[1], sqft, bedrooms, baths)
+    x = np.zeros(len(X.columns))
+    x[0] = baths
+    x[1] = sqft
+    x[2] = bedrooms
+    if loc_index >= 0:
+        x[loc_index] = 1
+    return dtr.predict([x])[0] / 100000
 
-# Display the predicted price to the user
-st.write('Predicted price for {} with {} bedrooms and {} baths and {} square feet area is {} Lakhs.'.format(city_location, bedrooms, baths, sqft, int(predicted_price)))
+# Make predictions based on user input
+city_location_value = city + '_' + location
+predicted_price = predict_price(city, location, sqft, bedrooms, baths)
+
+# Show the predicted price
+st.subheader('Predicted Price:')
+st.write(f'{int(predicted_price)} Lakhs')
