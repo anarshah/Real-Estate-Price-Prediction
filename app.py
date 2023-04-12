@@ -12,15 +12,14 @@ city_locations = df['city_location'].unique()
 
 # Function to predict price
 def predict_price(city_location, sqft, bedrooms, baths):
-    loc_index = np.where(city_locations == city_location)[0][0]
-
-    x = np.zeros(len(X.columns))
-    x[0] = baths
-    x[1] = sqft
-    x[2] = bedrooms
-    if loc_index >= 0:
-        x[loc_index] = 1
-    return dtr.predict([x])[0] / 100000
+    x = pd.DataFrame(columns=X.columns)
+    x.loc[0] = np.zeros(len(X.columns))
+    x.loc[0, 'baths'] = baths
+    x.loc[0, 'area'] = sqft
+    x.loc[0, 'bedrooms'] = bedrooms
+    if city_location in x.columns:
+        x.loc[0, city_location] = 1
+    return dtr.predict(x.values)[0] / 100000
 
 # Create X dataframe for prediction function
 X = df.drop(['price', 'price_per_sqft'], axis=1)
