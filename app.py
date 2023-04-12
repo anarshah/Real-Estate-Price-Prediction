@@ -11,7 +11,7 @@ dtr = load('property_predictor.joblib')
 data = pd.read_csv('property_updated_csv.csv')
 
 # Prepare the feature matrix X and target variable y
-df1 = df.drop("price_per_sqft", axis=1)
+df1 = data.drop("price_per_sqft", axis=1)
 dummies = pd.get_dummies(df1['city_location'])
 dummies.head(3)
 df1 = pd.concat([df1, dummies.drop('others', axis=1)], axis="columns")
