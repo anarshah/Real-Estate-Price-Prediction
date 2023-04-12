@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.impute import SimpleImputer
 
 # load the trained model
-model = joblib.load('decision_tree_model.joblib')
+model = joblib.load('property_predictor.joblib')
 
 # load the dataset
 df = pd.read_csv('zameen-property-data.csv')
