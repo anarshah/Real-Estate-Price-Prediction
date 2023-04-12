@@ -1,9 +1,11 @@
 import streamlit as st
 import joblib
+import pandas as pd
 
 # Load the saved model
 dtr_model = joblib.load('property_predictor.joblib')
 
+df = pd.read_csv('zameen-property-data.csv')
 # Get the unique city_location values from the dataset
 city_locations = df['city_location'].unique()
 
