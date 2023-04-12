@@ -7,7 +7,7 @@ from joblib import load
 dtr = load('property_predictor.joblib')
 
 # Load the city and location data
-city_locations = pd.read_csv('zameen-property-data.csv')['city_location'].unique()
+city_locations = pd.read_csv('property_updated_csv.csv')['city_location'].unique()
 
 # Create a Streamlit app
 st.title('Property Price Predictor')
