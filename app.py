@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 
 # Load the saved model
-dtr_model = joblib.load('property_price_prediction.joblib')
+dtr_model = joblib.load('property_predictor.joblib')
 
 # Get the unique city_location values from the dataset
 city_locations = df['city_location'].unique()
